@@ -1,0 +1,36 @@
+crimes_merged = pd.read_csv('merged_file_weather+daily_counts.csv')
+cleaned_crimes_merged = crimes_merged.dropna()
+cleaned_crimes_merged.head
+cleaned_crimes_merged.info()
+
+# Create polynomial features
+poly = PolynomialFeatures(degree=2)
+X_poly = poly.fit_transform(cleaned_crimes_merged[['Temp']])
+
+# Add interaction terms manually
+cleaned_crimes_merged['Temp_Crime_Interaction'] = cleaned_crimes_merged['Temp'] * cleaned_crimes_merged['NumberofCrimes']
+
+# Combine the new features with the original data
+X = np.hstack((X_poly, cleaned_crimes_merged[['Temp_Crime_Interaction']].values))
+y = cleaned_crimes_merged['NumberofCrimes']
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Decision Tree
+dt_model = DecisionTreeRegressor()
+dt_model.fit(X_train, y_train)
+y_pred_dt = dt_model.predict(X_test)
+print(f'Decision Tree R^2 Score: {r2_score(y_test, y_pred_dt)}')
+
+# Random Forest
+rf_model = RandomForestRegressor()
+rf_model.fit(X_train, y_train)
+y_pred_rf = rf_model.predict(X_test)
+print(f'Random Forest R^2 Score: {r2_score(y_test, y_pred_rf)}')
+
+# Neural Network
+nn_model = MLPRegressor(hidden_layer_sizes=(100,), max_iter=1000)
+nn_model.fit(X_train, y_train)
+y_pred_nn = nn_model.predict(X_test)
+print(f'Neural Network R^2 Score: {r2_score(y_test, y_pred_nn)}')
