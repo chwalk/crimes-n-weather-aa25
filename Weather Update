@@ -1,0 +1,11 @@
+#Updating weather data
+#weather_update_01.csv located in Teams
+
+import pandas as pd
+
+# Read in/convert to Datetime
+old_merged = pd.read_csv("C:/Users/___username___/Downloads/merged_file_weather+daily_counts.csv", parse_dates=['Date'])
+updated_merged = pd.read_csv("C:/Users/___username___/Downloads/weather_update_01.csv", parse_dates=['Date'])
+
+# Remove rows from updated_merged where Date already exists in old_merged
+merged_data = pd.concat([old_merged, updated_merged]).drop_duplicates('Date', keep='first')
